@@ -1,0 +1,49 @@
+namespace: socketio-minimal-demo
+
+socket-io-server:
+  defines: runnable
+  metadata:
+    name: socket-io-server
+    description: Node.js server that handles WebSocket connections using Socket.io.
+    icon: https://emojiapi.dev/api/v1/robot.svg
+  containers:
+    socket-io-server:
+      image: env-3257.registry.local/socket-io-server:main-fabe6ca
+      build: .
+      dockerfile: Dockerfile.socket-io-server
+  services:
+    socket-io-server-port:
+      description: Port for Socket.io server to accept connections
+      container: socket-io-server
+      port: 8080
+      host-port: 8080
+      publish: true
+      protocol: tcp
+  connections: {}
+  variables: {}
+
+static-web-client:
+  defines: runnable
+  metadata:
+    name: static-web-client
+    description: Static web client that connects to the Socket.io server.
+    icon: https://emojiapi.dev/api/v1/robot.svg
+  containers:
+    static-web-client:
+      image: env-3257.registry.local/static-web-client:main-fabe6ca
+      build: .
+      dockerfile: Dockerfile.static-web-client
+  services: {}
+  connections:
+    socket-io-server-connection:
+      target: socketio-minimal-demo/socket-io-server
+      service: socket-io-server-port
+      optional: true
+      description: Connection from static web client to Socket.io server
+  variables: {}
+
+stack:
+  defines: group
+  members:
+    - socketio-minimal-demo/socket-io-server
+    - socketio-minimal-demo/static-web-client
